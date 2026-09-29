@@ -26,11 +26,10 @@ jobs:
         run: |
           echo "ANDROID_HOME=$ANDROID_HOME"
           echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
-          ls -la "$ANDROID_HOME"
-          echo "=== Build Tools ==="
-          ls -la "$ANDROID_HOME/build-tools" || true
           echo "=== SDK Platforms ==="
           ls -la "$ANDROID_HOME/platforms" || true
+          echo "=== Build Tools ==="
+          ls -la "$ANDROID_HOME/build-tools" || true
 
       - name: Make Gradle executable
         run: chmod +x gradlew
