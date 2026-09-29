@@ -22,8 +22,15 @@ jobs:
           java-version: '17'
           cache: gradle
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Check Android SDK
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+          ls -la "$ANDROID_HOME"
+          echo "=== Build Tools ==="
+          ls -la "$ANDROID_HOME/build-tools" || true
+          echo "=== SDK Platforms ==="
+          ls -la "$ANDROID_HOME/platforms" || true
 
       - name: Make Gradle executable
         run: chmod +x gradlew
@@ -33,7 +40,7 @@ jobs:
 
       - name: Find APK
         run: |
-          echo "=== APK files ==="
+          echo "=== Searching for APK ==="
           find . -type f -name "*.apk" -print
 
       - name: Upload APK
@@ -41,6 +48,5 @@ jobs:
         with:
           name: ScanBelanja-APK
           path: |
-            android/app/build/outputs/apk/release/*.apk
             **/build/outputs/apk/release/*.apk
           if-no-files-found: error
