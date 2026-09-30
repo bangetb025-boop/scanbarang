@@ -118,7 +118,7 @@ video{width:100%;border-radius:18px;background:#000;margin:10px 0;max-height:55v
 <button class="close" onclick="closePhoto()">×</button>
 <h2>Ambil Foto</h2>
 <p class="muted">Foto bagian kemasan yang menampilkan nama merek/produk. Sistem membaca tulisan pada kemasan, bukan menebak bentuk barang.</p>
-<input id="photoInput" type="file" accept="image/*" capture="environment" onchange="readProductPhoto(event)" style="display:none">
+<input id="photoInput" type="file" accept="image/*" onchange="readProductPhoto(event)" style="display:none">
 <button class="primary" onclick="document.getElementById('photoInput').click()">📷 Ambil Foto</button>
 <img id="photoPreview" class="photo-preview">
 <div class="status" id="photoStatus">Belum ada foto.</div>
@@ -372,6 +372,23 @@ function goHome(btn){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 render();
+</script>
+
+<style>
+#photoCameraModal{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:9999;display:none;align-items:center;justify-content:center;padding:18px}
+#photoCameraModal.show{display:flex}
+.photo-camera-box{width:min(520px,100%);background:#0b1727;border-radius:20px;padding:16px;color:#fff}
+.photo-camera-video{width:100%;aspect-ratio:3/4;object-fit:cover;background:#000;border-radius:14px}
+.photo-camera-actions{display:flex;gap:10px;margin-top:12px}
+.photo-camera-actions button{flex:1;border:0;border-radius:12px;padding:13px;font-weight:700}
+</style>
+<div id="photoCameraModal"><div class="photo-camera-box"><video id="photoCameraVideo" class="photo-camera-video" autoplay playsinline muted></video><canvas id="photoCameraCanvas" style="display:none"></canvas><div class="photo-camera-actions"><button id="takePhotoBtn" type="button">📷 Ambil Foto</button><button id="closePhotoCameraBtn" type="button">Tutup</button></div></div></div>
+<script>
+(function(){
+let stream=null;const modal=document.getElementById('photoCameraModal'),video=document.getElementById('photoCameraVideo'),canvas=document.getElementById('photoCameraCanvas'),take=document.getElementById('takePhotoBtn'),close=document.getElementById('closePhotoCameraBtn'),input=document.getElementById('photoInput');
+function stop(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}video.srcObject=null;modal.classList.remove('show')}
+window.openInlinePhotoCamera=async function(){try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false});video.srcObject=stream;modal.classList.add('show');await video.play()}catch(e){alert('Kamera tidak bisa dibuka. Pastikan izin kamera diberikan.')}};
+take.onclick=function(){if(!video.videoWidth)return;canvas.width=video.videoWidth;canvas.height=video.videoHeight;canvas.getContext('2d').drawImage(video,0,0);canvas.toBlob(function(blob){if(!blob)return;stop();const file=new File([blob],'scanbelanja-camera.jpg',{type:'image/jpeg'});if(input){const dt=new DataTransfer();dt.items.add(file);input.files=dt.files;input.dispatchEvent(new Event('change',{bubbles:true}))}},'image/jpeg',.92)};close.onclick=stop;modal.addEventListener('click',e=>{if(e.target===modal)stop()});document.addEventListener('click',function(e){const el=e.target.closest('button,[role="button"],a');if(!el)return;const label=(el.textContent||'').trim().toLowerCase();if(label.includes('ambil foto')||label.includes('scan bentuk')){e.preventDefault();e.stopPropagation();window.openInlinePhotoCamera()}},true);})();
 </script>
 </body>
 </html>
